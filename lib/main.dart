@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,33 +12,40 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TodoListApp(),
+      home: AddressLogApp(),
     );
   }
 }
 
-class TodoListApp extends StatefulWidget {
+class AddressLogApp extends StatefulWidget {
   @override
-  _TodoListAppState createState() => _TodoListAppState();
+  _AddressLogAppState createState() => _AddressLogAppState();
 }
 
-class _TodoListAppState extends State<TodoListApp> {
-  final List<String> _tasks = [];
-  final TextEditingController _controller = TextEditingController();
+class _AddressLogAppState extends State<AddressLogApp> {
+  final List<String> _logs = [];
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
 
   void _addTask() {
-    String text = _controller.text.trim();
-    if (text.isNotEmpty) {
+    String name = _nameController.text.trim();
+    String address = _addressController.text.trim();
+    String contact = _contactController.text.trim();
+
+    if (name.isNotEmpty && address.isNotEmpty && contact.isNotEmpty) {
       setState(() {
-        _tasks.add(text);
-        _controller.clear();
+        _logs.add("Name: $name\nAddress: $address\nContact: $contact");
+        _nameController.clear();
+        _addressController.clear();
+        _contactController.clear();
       });
     }
   }
 
   void _removeTask(int index) {
     setState(() {
-      _tasks.removeAt(index);
+      _logs.removeAt(index);
     });
   }
 
@@ -45,52 +53,136 @@ class _TodoListAppState extends State<TodoListApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("To-Do List App"),
-        backgroundColor: Colors.blue,
+        title: const Text(
+          "Address Log App",
+        ),
+        backgroundColor: Color(0xffFFE800),
         centerTitle: true,
       ),
+      backgroundColor: Color(0xFFF85B1A),
       body: Column(
         children: [
-          // Input field and button
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "Enter an address",
-                      border: OutlineInputBorder(),
-                    ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            hoverColor: Colors.black,
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Enter a name",
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black, 
+                                width: 3,
+                              )
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: _addressController,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Enter an address",
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black, 
+                                width: 3,
+                              )
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox  (
+                        width: 300,
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          controller: _contactController,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: "Enter contact number",
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black, 
+                                width: 3,
+                              )
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                
+                const SizedBox(width: 12),
+
                 ElevatedButton(
                   onPressed: _addTask,
-                  child: const Text("Add"),
+                  style: ElevatedButton.styleFrom(
+                    side: BorderSide(
+                      width: 3,
+                      color: Colors.black,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                    "Save",
+                  ),
                 ),
               ],
             ),
           ),
 
-          // Display tasks
           Expanded(
-            child: _tasks.isEmpty
-                ? const Center(child: Text("No tasks yet!"))
-                : ListView.builder(
-              itemCount: _tasks.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    title: Text(_tasks[index]),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _removeTask(index),
+            child: Container(
+              margin: const EdgeInsets.all(12.0),
+              color: Color(0xff072083),
+              child: _logs.isEmpty
+              ? const Center(child: Text(
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+                "No logs yet!",
+                )
+              )
+              : ListView.builder(
+                itemCount: _logs.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text(_logs[index]),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _removeTask(index),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],
